@@ -104,6 +104,15 @@ public class ClientHandler {
 									}
 
 								}
+								if(str.equals("/getHistory")){
+									List<String> historyList=AuthService.getmessage(nickname);
+									sendMsg("----History Loaded----");
+									for (int i = 0; i < historyList.size() ; i++) {
+										sendMsg(historyList.get(i));
+										System.out.println(historyList.size());
+									}
+									historyList.clear();
+								}
 							} else {
 								server.broadcastMessage(this, nickname +": " + str);
 							}
@@ -156,32 +165,5 @@ public class ClientHandler {
 	public boolean checkBlackList(String nickname) {
 		return blackList.contains(nickname);
 	}
-
-	public int message(String nickTo, String message, String nickFrom, Connection connection){
-		PreparedStatement ps=null;
-		try {
-			ps=connection.prepareStatement("INSERT INTO messagehistory (nickTo, massage, nickFrom) VALUES (?,?,?)");
-			ps.setString(1,nickTo);
-			ps.setString(2,message);
-			ps.setString(3,nickFrom);
-			return ps.executeUpdate();
-		}catch (SQLException e){
-			e.printStackTrace();
-		}finally {
-			statementClose(ps);
-		}
-		return 0;
-	}
-
-	private void statementClose(PreparedStatement ps) {
-		try {
-			ps.close();
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-
-	}
-
-
 
 }

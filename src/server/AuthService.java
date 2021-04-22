@@ -129,4 +129,44 @@ public class AuthService {
 			e.printStackTrace();
 		}
 	}
+	public static int addmessage(String nickTo, String message, String nickFrom){
+		PreparedStatement ps=null;
+		try {
+			ps=connection.prepareStatement("INSERT INTO messagehistiry (nickTo, message, nickFrom) VALUES (?,?,?)");
+			ps.setString(1,nickTo);
+			ps.setString(2,message);
+			ps.setString(3,nickFrom);
+			return ps.executeUpdate();
+		}catch (SQLException e){
+			e.printStackTrace();
+		}finally {
+			statementClose(ps);
+		}
+		return 0;
+
+	}
+
+	public static List<String> getmessage(String nickname){
+		List<String> messageHistory=new ArrayList<>();
+		PreparedStatement ps=null;
+		ResultSet rs=null;
+
+		try{
+			ps=connection.prepareStatement("SELECT * FROM messagehistiry WHERE nickTo=?");
+			ps.setString(1,nickname);
+			rs= ps.executeQuery();
+
+			while (rs.next()){
+				messageHistory.add(rs.getString(2));
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}finally {
+			resultSetClose(rs);
+			statementClose(ps);
+		}
+		return messageHistory;
+
+	}
+
 }

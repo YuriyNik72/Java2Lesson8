@@ -64,6 +64,8 @@ public class ConsoleServer {
 		for (ClientHandler c : users) {
 			if (!c.checkBlackList(from.getNickname())) {
 				c.sendMsg(str);
+				ClientHandler nickFrom = null;
+				//AuthService.addmessage(nickFrom.getNickname(),str,c.getNickname());
 			}
 		}
 	}
@@ -103,30 +105,5 @@ public class ConsoleServer {
 			c.sendMsg(out);
 		}
 	}
-
-//	public int message(String nickTo, String message, String nickFrom, Connection connection){
-//		PreparedStatement ps=null;
-//		try {
-//			ps=connection.prepareStatement("INSERT INTO messagehistory (nickTo, massage, nickFrom) VALUES (?,?,?)");
-//			ps.setString(1,nickTo);
-//			ps.setString(2,message);
-//			ps.setString(3,nickFrom);
-//			return ps.executeUpdate();
-//		}catch (SQLException e){
-//				e.printStackTrace();
-//		}finally {
-//				statementClose(ps);
-//			}
-//			return 0;
-//		}
-//
-//	private void statementClose(PreparedStatement ps) {
-//		try {
-//			ps.close();
-//		} catch (SQLException e) {
-//			e.printStackTrace();
-//		}
-//
-//	}
 
 }
