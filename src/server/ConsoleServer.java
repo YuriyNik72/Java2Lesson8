@@ -1,13 +1,15 @@
 package server;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
+
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.Scanner;
+
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.Vector;
+
+import static server.AuthService.connect;
 
 public class ConsoleServer {
 	private Vector<ClientHandler> users;
@@ -18,7 +20,7 @@ public class ConsoleServer {
 		Socket socket = null; // удаленная (remote) сторона
 
 		try {
-			AuthService.connect();
+			connect();
 			server = new ServerSocket(6001);
 			System.out.println("Server started");
 
@@ -78,6 +80,9 @@ public class ConsoleServer {
 	public void sendPrivateMsg(ClientHandler nickFrom, String nickTo, String msg) {
 		for (ClientHandler c : users) {
 			if (c.getNickname().equals(nickTo)) {
+				if (c.checkBlackList(nickFrom.getNickname())) { //запрет сообщений от ClientBlackList
+					break;
+				}
 				if (!nickFrom.getNickname().equals(nickTo)) {
 					c.sendMsg(nickFrom.getNickname() + ": [Send for " + nickTo + "] " + msg);
 					nickFrom.sendMsg(nickFrom.getNickname() + ": [Send for " + nickTo + "] " + msg);
@@ -98,5 +103,30 @@ public class ConsoleServer {
 			c.sendMsg(out);
 		}
 	}
+
+//	public int message(String nickTo, String message, String nickFrom, Connection connection){
+//		PreparedStatement ps=null;
+//		try {
+//			ps=connection.prepareStatement("INSERT INTO messagehistory (nickTo, massage, nickFrom) VALUES (?,?,?)");
+//			ps.setString(1,nickTo);
+//			ps.setString(2,message);
+//			ps.setString(3,nickFrom);
+//			return ps.executeUpdate();
+//		}catch (SQLException e){
+//				e.printStackTrace();
+//		}finally {
+//				statementClose(ps);
+//			}
+//			return 0;
+//		}
+//
+//	private void statementClose(PreparedStatement ps) {
+//		try {
+//			ps.close();
+//		} catch (SQLException e) {
+//			e.printStackTrace();
+//		}
+//
+//	}
 
 }
