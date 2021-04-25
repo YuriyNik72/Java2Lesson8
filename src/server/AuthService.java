@@ -129,13 +129,13 @@ public class AuthService {
 			e.printStackTrace();
 		}
 	}
-	public static int addmessage(String nickTo, String message, String nickFrom){
+	public static int addMessage(String message, String nickFrom){
 		PreparedStatement ps=null;
 		try {
-			ps=connection.prepareStatement("INSERT INTO messagehistiry (nickTo, message, nickFrom) VALUES (?,?,?)");
-			ps.setString(1,nickTo);
-			ps.setString(2,message);
-			ps.setString(3,nickFrom);
+			ps=connection.prepareStatement("INSERT INTO messagehistory (message, nickFrom) VALUES (?,?)");
+			//ps.setString(1,nickTo);
+			ps.setString(1,message);
+			ps.setString(2,nickFrom);
 			return ps.executeUpdate();
 		}catch (SQLException e){
 			e.printStackTrace();
@@ -146,18 +146,22 @@ public class AuthService {
 
 	}
 
-	public static List<String> getmessage(String nickname){
-		List<String> messageHistory=new ArrayList<>();
+	public static  List<String> getMessage(String message, String nickFrom){
+		List<String> getHistory=new ArrayList<>();
 		PreparedStatement ps=null;
 		ResultSet rs=null;
+		//String message = null;
 
 		try{
-			ps=connection.prepareStatement("SELECT * FROM messagehistiry WHERE nickTo=?");
-			ps.setString(1,nickname);
+			ps=connection.prepareStatement("SELECT * FROM messagehistory WHERE message=? AND nickFrom=?");
+			ps.setString(1,nickFrom );
+			ps.setString(2,message);
 			rs= ps.executeQuery();
 
 			while (rs.next()){
-				messageHistory.add(rs.getString(2));
+				getHistory.add(rs.getString(1));
+				getHistory.add(rs.getString(2));
+				//ClientHandler.sendMsg(getHistory);
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -165,7 +169,7 @@ public class AuthService {
 			resultSetClose(rs);
 			statementClose(ps);
 		}
-		return messageHistory;
+		return getHistory;
 
 	}
 

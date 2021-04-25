@@ -4,9 +4,6 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
 import java.util.List;
 
 public class ClientHandler {
@@ -19,6 +16,7 @@ public class ClientHandler {
 
 	// черный список у пользователя, а не у сервера
 	List<String> blackList;
+	List<String> historyList;
 
 	public ClientHandler(ConsoleServer server, Socket socket) {
 		try {
@@ -27,6 +25,8 @@ public class ClientHandler {
 			this.in = new DataInputStream(socket.getInputStream());
 			this.out = new DataOutputStream(socket.getOutputStream());
 			this.blackList = AuthService.getBlackListByNickname(nickname);
+			String message = null;
+			this.historyList=AuthService.getMessage(message, nickname);
 
 			new Thread(() -> {
 				boolean isExit = false;
@@ -104,12 +104,14 @@ public class ClientHandler {
 									}
 
 								}
-								if(str.equals("/getHistory")){
-									List<String> historyList=AuthService.getmessage(nickname);
+
+								if(str.startsWith("/getHistory")){
+									//String message="Привет";
+									//List<String> historyList= AuthService.getMessage(message, nickname);
 									sendMsg("----History Loaded----");
-									for (int i = 0; i < historyList.size() ; i++) {
+									for (int i = 0; i <= historyList.size() ; i++) {
 										sendMsg(historyList.get(i));
-										System.out.println(historyList.size());
+										System.out.println(historyList);
 									}
 									historyList.clear();
 								}

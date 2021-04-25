@@ -64,8 +64,7 @@ public class ConsoleServer {
 		for (ClientHandler c : users) {
 			if (!c.checkBlackList(from.getNickname())) {
 				c.sendMsg(str);
-				ClientHandler nickFrom = null;
-				//AuthService.addmessage(nickFrom.getNickname(),str,c.getNickname());
+				AuthService.addMessage(str,c.getNickname());
 			}
 		}
 	}

@@ -21,11 +21,11 @@
                <HBox.margin>
                   <Insets left="10.0" />
                </HBox.margin></PasswordField>
-            <Button onAction="#tryToAuth" styleClass="btn" text="Log in">
+            <Button onAction="#tryToAuth" styleClass="btn" text="Вход">
                <HBox.margin>
                   <Insets left="10.0" />
                </HBox.margin></Button>
-            <Button mnemonicParsing="false" onAction="#logUp" styleClass="btn" text="Log up">
+            <Button mnemonicParsing="false" onAction="#logUp" styleClass="btn" text="Регистрация">
                <HBox.margin>
                   <Insets left="10.0" />
                </HBox.margin>
