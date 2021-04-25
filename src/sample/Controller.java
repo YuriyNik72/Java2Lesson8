@@ -93,7 +93,7 @@ public class Controller implements Initializable {
 
 	public void connect() {
 		try {
-			userName.setText("test");
+			userName.setText("Nick");
 			socket = new Socket(ADDRESS, PORT);
 
 			in = new DataInputStream(socket.getInputStream());

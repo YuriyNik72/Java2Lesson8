@@ -4,7 +4,6 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
-import java.util.ArrayList;
 import java.util.List;
 
 public class ClientHandler {
@@ -17,6 +16,7 @@ public class ClientHandler {
 
 	// черный список у пользователя, а не у сервера
 	List<String> blackList;
+	List<String> historyList;
 
 	public ClientHandler(ConsoleServer server, Socket socket) {
 		try {
@@ -24,11 +24,14 @@ public class ClientHandler {
 			this.socket = socket;
 			this.in = new DataInputStream(socket.getInputStream());
 			this.out = new DataOutputStream(socket.getOutputStream());
-			this.blackList = new ArrayList<>();
+			this.blackList = AuthService.getBlackListByNickname(nickname);
+			String message = null;
+			this.historyList=AuthService.getMessage(message, nickname);
 
 			new Thread(() -> {
 				boolean isExit = false;
 				try {
+					socket.setSoTimeout(120000);
 					while (true) {
 						String str = in.readUTF();
 						if (str.startsWith("/auth")){
@@ -38,6 +41,7 @@ public class ClientHandler {
 								if (!server.isNickBusy(nick)) {
 									sendMsg("/auth-OK");
 									setNickname(nick);
+									socket.setSoTimeout(0);
 									server.subscribe(ClientHandler.this);
 									break;
 								} else {
@@ -83,8 +87,33 @@ public class ClientHandler {
 								// черный список для пользователя. но пока что только в рамках одного запуска программы
 								if (str.startsWith("/blacklist ")) {
 									String[] tokens = str.split(" ");
-									blackList.add(tokens[1]);
-									sendMsg("You added " + tokens[1] + " to blacklist");
+									if(AuthService.getBlackListByNickname(nickname).contains(tokens[1])){
+										if(AuthService.deleteUserFromBlackList(nickname,tokens[1])==1){
+											sendMsg("You exclude "+ tokens[1]+" from blacklist");
+										}else{
+											sendMsg("Something wrong! Cannot exclude.");
+										}
+									}else {
+										if(AuthService.addUserToBlackList(nickname,tokens[1])==1){
+											blackList.add(tokens[1]);
+											sendMsg("You added " + tokens[1] + " to blacklist");
+										}else {
+											sendMsg("Something wrong! Cannot add.");
+										}
+
+									}
+
+								}
+
+								if(str.startsWith("/getHistory")){
+									//String message="Привет";
+									//List<String> historyList= AuthService.getMessage(message, nickname);
+									sendMsg("----History Loaded----");
+									for (int i = 0; i <= historyList.size() ; i++) {
+										sendMsg(historyList.get(i));
+										System.out.println(historyList);
+									}
+									historyList.clear();
 								}
 							} else {
 								server.broadcastMessage(this, nickname +": " + str);
@@ -124,6 +153,7 @@ public class ClientHandler {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+
 	}
 
 	public String getNickname() {
@@ -137,4 +167,5 @@ public class ClientHandler {
 	public boolean checkBlackList(String nickname) {
 		return blackList.contains(nickname);
 	}
+
 }
