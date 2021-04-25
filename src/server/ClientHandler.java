@@ -1,8 +1,6 @@
 package server;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.net.Socket;
 import java.util.List;
 
@@ -17,6 +15,7 @@ public class ClientHandler {
 	// черный список у пользователя, а не у сервера
 	List<String> blackList;
 	List<String> historyList;
+	String message;
 
 	public ClientHandler(ConsoleServer server, Socket socket) {
 		try {
@@ -25,7 +24,6 @@ public class ClientHandler {
 			this.in = new DataInputStream(socket.getInputStream());
 			this.out = new DataOutputStream(socket.getOutputStream());
 			this.blackList = AuthService.getBlackListByNickname(nickname);
-			String message = null;
 			this.historyList=AuthService.getMessage(message, nickname);
 
 			new Thread(() -> {
@@ -41,6 +39,7 @@ public class ClientHandler {
 								if (!server.isNickBusy(nick)) {
 									sendMsg("/auth-OK");
 									setNickname(nick);
+									readHistory(100); //вывод сообщений из файла
 									socket.setSoTimeout(0);
 									server.subscribe(ClientHandler.this);
 									break;
@@ -111,12 +110,13 @@ public class ClientHandler {
 									sendMsg("----History Loaded----");
 									for (int i = 0; i <= historyList.size() ; i++) {
 										sendMsg(historyList.get(i));
-										System.out.println(historyList);
+										System.out.println(historyList.get(i));
 									}
 									historyList.clear();
 								}
 							} else {
 								server.broadcastMessage(this, nickname +": " + str);
+								writeHistory(str);
 							}
 							System.out.println("Client (" + socket.getInetAddress() + "): " + str);
 						}
@@ -166,6 +166,46 @@ public class ClientHandler {
 
 	public boolean checkBlackList(String nickname) {
 		return blackList.contains(nickname);
+	}
+
+	public void readHistory(int n){
+		File file =new File("src/server/history.txt");
+		try{
+			RandomAccessFile raf=new RandomAccessFile(file,"r");
+			long length = file.length()-1;
+			int readLine=0;
+			StringBuilder sb =new StringBuilder();
+			for(long i=length;i >=0; i--){
+				raf.seek(i);
+				char c=(char) raf.read();
+				if(c == '\n'){
+					readLine++;
+					if(readLine == n){
+						break;
+					}
+				}
+				sb.append(c);
+			}
+			sendMsg(String.valueOf(sb.reverse()));
+		} catch (IOException e) {
+			e.printStackTrace();
+			}
+	}
+
+	public void writeHistory (String msg){
+		try(FileWriter writer = new FileWriter("src/server/history.txt", true))
+		{
+			// запись всей строки
+			String text =(nickname + ": " + msg + "\n");
+			writer.write(text);
+			// запись по символам
+//			writer.append('\n');
+//			writer.append('E');
+			writer.flush();
+		}
+		catch(IOException e){
+			e.printStackTrace();
+		}
 	}
 
 }
