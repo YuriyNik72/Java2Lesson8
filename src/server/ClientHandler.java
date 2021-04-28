@@ -103,7 +103,7 @@ public class ClientHandler {
 									}
 
 								}
-
+									//запись сообщений в БД
 								if(str.startsWith("/getHistory")){
 									//String message="Привет";
 									//List<String> historyList= AuthService.getMessage(message, nickname);
@@ -116,7 +116,7 @@ public class ClientHandler {
 								}
 							} else {
 								server.broadcastMessage(this, nickname +": " + str);
-								writeHistory(str);
+								writeHistory(str); //запись сообщений в файл
 							}
 							System.out.println("Client (" + socket.getInetAddress() + "): " + str);
 						}

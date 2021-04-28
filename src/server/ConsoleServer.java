@@ -95,7 +95,6 @@ public class ConsoleServer {
 		for (ClientHandler c : users) {
 			sb.append(c.getNickname() + " ");
 		}
-
 		String out = sb.toString();
 		for (ClientHandler c : users) {
 			c.sendMsg(out);
