@@ -22,14 +22,16 @@ public class HomeWork {
     }
 
     public static boolean checkOneAndFour (int [] arr){
-        boolean val1=true;
+        boolean val1=false, val2=false;
         for (int i = 0; i < arr.length; i++) {
-            if(!(arr[i] ==1) || !(arr[i] ==4)){
-                val1=false;
-            }else {
-                return true;
+            if (arr[i] == 1) {
+                val1 = true;
+            } else if (arr[i] == 4) {
+                val2 = true;
+            } else {
+                return false;
             }
         }
-        return val1;
+        return val1 & val2;
     }
 }
