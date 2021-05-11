@@ -5,10 +5,14 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Vector;
+import java.util.logging.Logger;
 
 import static server.AuthService.connect;
 
 public class ConsoleServer {
+
+	private static final Logger LOGGER=Logger.getLogger(String.valueOf(ConsoleServer.class));
+
 	private Vector<ClientHandler> users;
 
 	public ConsoleServer() {
@@ -20,10 +24,11 @@ public class ConsoleServer {
 			connect();
 			server = new ServerSocket(6001);
 			System.out.println("Server started");
-
+			LOGGER.info("Сервер запустился");
 			while (true) {
 				socket = server.accept();
 				System.out.printf("Client [%s] try to connect\n", socket.getInetAddress());
+				LOGGER.info("Клиент " +socket.getInetAddress()+ " подключается");
 				new ClientHandler(this, socket);
 			}
 
@@ -32,6 +37,7 @@ public class ConsoleServer {
 		} finally {
 			try {
 				System.out.printf("Client [%s] disconnected", socket.getInetAddress());
+				LOGGER.info("Клиент "+ socket.getInetAddress() + " отключился");
 				socket.close();
 			} catch (IOException e) {
 				e.printStackTrace();
@@ -48,12 +54,14 @@ public class ConsoleServer {
 	public void subscribe(ClientHandler client) {
 		users.add(client);
 		System.out.println(String.format("User [%s] connected", client.getNickname()));
+		LOGGER.info("Пользователь " + client.getNickname() +" подключился");
 		broadcastClientsList();
 	}
 
 	public void unsubscribe(ClientHandler client) {
 		users.remove(client);
 		System.out.println(String.format("User [%s] disconnected", client.getNickname()));
+		LOGGER.info("Пользователь " + client.getNickname() +" отключился");
 		broadcastClientsList();
 	}
 
@@ -62,6 +70,7 @@ public class ConsoleServer {
 			if (!c.checkBlackList(from.getNickname())) {
 				c.sendMsg(str);
 				AuthService.addMessage(str,c.getNickname());
+				LOGGER.info("Пользователь " + from.getNickname() +" прислал сообщение");
 			}
 		}
 	}
